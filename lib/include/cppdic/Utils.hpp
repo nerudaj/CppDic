@@ -143,5 +143,61 @@ namespace dic
         template<typename Pack>
         using permutations_t = typename permutations<Pack>::type;
 
+        template<class, size_t, class...>
+        struct CanConstructFromAtLeastOneSubset;
+
+        template<class T, size_t Idx, class Head, class... Tail>
+        struct CanConstructFromAtLeastOneSubset<T, Idx, Head, Tail...>
+            : std::bool_constant<
+                  std::constructible_from<T, Head, Tail...>
+                  || CanConstructFromAtLeastOneSubset<T, Idx - 1, Tail...>::
+                      value>
+        {
+        };
+
+        template<class T, class U>
+        struct CanConstructFromAtLeastOneSubset<T, 1, U>
+            : std::bool_constant<std::constructible_from<T, U>>
+        {
+        };
+
+        template<class, class>
+        struct CanConstructFromTuple;
+
+        template<class T, class... Us>
+        struct CanConstructFromTuple<T, std::tuple<Us...>>
+            //: std::bool_constant<std::constructible_from<T, Us...>>
+            : std::bool_constant<
+                  CanConstructFromAtLeastOneSubset<T, sizeof...(Us), Us...>::
+                      value>
+        {
+        };
+
+        // Rule no1 of recursion
+        template<class, class...>
+        struct CanConstructFromAListOfTuples;
+
+        template<class T, class Head, class... Tail>
+        struct CanConstructFromAListOfTuples<T, Head, Tail...>
+            : std::bool_constant<
+                  CanConstructFromTuple<T, Head>::value
+                  || CanConstructFromAListOfTuples<T, Tail...>::value>
+        {
+        };
+
+        template<class T, class U>
+        struct CanConstructFromAListOfTuples<T, U>
+            : std::bool_constant<CanConstructFromTuple<T, U>::value>
+        {
+        };
+
+        template<class, class>
+        struct TopLevelUnpack;
+
+        template<class T, class... Us>
+        struct TopLevelUnpack<T, std::tuple<Us...>>
+            : std::bool_constant<CanConstructFromAListOfTuples<T, Us...>::value>
+        {
+        };
     } // namespace utils
 } // namespace dic

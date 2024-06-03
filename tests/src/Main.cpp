@@ -34,6 +34,16 @@ public:
     }
 };
 
+class D
+{
+};
+
+class Perm
+{
+public:
+    Perm(A, C, B) {}
+};
+
 int main()
 {
     constexpr auto index1 =
@@ -56,4 +66,23 @@ int main()
                           .addService<C>()
                           .build();
     provider.get<I>()->hello();
+
+    static_assert(
+        dic::utils::CanConstructFromTuple<Perm, std::tuple<A, C, B>>::value);
+    static_assert(std::constructible_from<Perm, A, C, B>);
+    static_assert(!std::constructible_from<Perm, A, B, C>);
+    static_assert(
+        !dic::utils::CanConstructFromTuple<Perm, std::tuple<A, B, C>>::value);
+    static_assert(
+        dic::utils::CanConstructFromAListOfTuples<Perm, std::tuple<A, C, B>>::
+            value);
+    static_assert(
+        !dic::utils::CanConstructFromAListOfTuples<Perm, std::tuple<A, B, C>>::
+            value);
+    static_assert(dic::utils::TopLevelUnpack<
+                  Perm,
+                  dic::utils::permutations_t<std::tuple<A, B, C, D>>>::value);
+    static_assert(!dic::utils::TopLevelUnpack<
+                  Perm,
+                  dic::utils::permutations_t<std::tuple<A, B>>>::value);
 }
