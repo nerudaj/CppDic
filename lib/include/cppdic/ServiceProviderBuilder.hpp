@@ -65,6 +65,8 @@ namespace dic
 
         auto build()
         {
+            // This could construct all shared ptrs and hide impl types from
+            // provider
             return ServiceProvider<Ts...>(impls);
         }
 
@@ -72,13 +74,30 @@ namespace dic
         template<bool PerformCreationChecks, class Iface, class Impl = Iface>
         auto addServiceImpl(std::shared_ptr<Iface> impl = nullptr)
         {
+            constexpr auto index = utils::getIndex<Iface, Ts...>(0);
+
             if constexpr (PerformCreationChecks)
             {
-                static_assert(std::is_default_constructible_v<Impl>, "tbd");
-                // TODO: test that this class can be constructed
+                if constexpr (sizeof...(Ts) == 0)
+                {
+                    static_assert(
+                        std::is_default_constructible_v<Impl>,
+                        "Type has to be default-constructible, nothing else is "
+                        "in the collection yet.");
+                }
+                else
+                {
+                    static_assert(
+                        std::is_default_constructible_v<Impl>
+                            || utils::TopLevelUnpack<
+                                Impl,
+                                utils::permutations_t<Services<Ts...>>>::value,
+                        "Could not construct service only from services "
+                        "already "
+                        "registered in the builder.");
+                }
             }
 
-            constexpr auto index = utils::getIndex<Iface, Ts...>(0);
             if constexpr (sizeof...(Ts) == index)
             {
                 return ServiceProviderBuilder<Ts..., Service<Iface, Impl>>(
