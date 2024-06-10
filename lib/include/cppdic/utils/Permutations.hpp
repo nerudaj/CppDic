@@ -2,6 +2,9 @@
 
 #include <type_traits>
 
+// https://
+// codereview.stackexchange.com/questions/80373/generating-all-permutations-of-a-template-pack
+
 namespace dic
 {
     namespace utils
@@ -83,18 +86,15 @@ namespace dic
         } // namespace detail
 
         template<typename Pack>
-        struct permutations
+        struct Permutations
         {
         };
 
         template<template<typename...> class P, typename... Ts>
-        struct permutations<P<Ts...>>
+        struct Permutations<P<Ts...>>
         {
-            using type = typename detail::
+            using Types = typename detail::
                 permutations_impl<sizeof...(Ts), P<Ts...>>::type;
         };
-
-        template<typename Pack>
-        using permutations_t = typename permutations<Pack>::type;
     } // namespace utils
 } // namespace dic

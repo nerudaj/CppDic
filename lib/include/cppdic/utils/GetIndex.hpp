@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cppdic/Service.hpp"
 #include <concepts>
 
 namespace dic

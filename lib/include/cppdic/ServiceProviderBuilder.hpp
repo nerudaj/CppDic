@@ -89,9 +89,9 @@ namespace dic
                 {
                     static_assert(
                         std::is_default_constructible_v<Impl>
-                            || utils::TopLevelUnpack<
+                            || utils::CanConstructTypeFromAListOfTuples<
                                 Impl,
-                                utils::permutations_t<Services<Ts...>>>::value,
+                                utils::Permutations<Services<Ts...>>>::Types,
                         "Could not construct service only from services "
                         "already "
                         "registered in the builder.");

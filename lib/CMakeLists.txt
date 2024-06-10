@@ -11,3 +11,5 @@ add_library ( cppdic INTERFACE
 target_include_directories ( cppdic
 	INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+
+target_compile_features( cppdic INTERFACE cxx_std_23 )
