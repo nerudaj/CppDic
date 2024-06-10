@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cppdic/utils/Permutations.hpp"
+#include "cppdic/utils/TypesAfter.hpp"
 #include <tuple>
 #include <utility>
 
@@ -7,17 +9,37 @@ namespace dic
 {
     namespace utils
     {
-        template<class T, size_t... I>
-        auto makeSubsetTuple(const T& t, std::index_sequence<I...>)
+        template<std::size_t, class...>
+        struct TypesBefore;
+
+        template<std::size_t N, class T, class... Ts>
+        struct TypesBefore<N, T, Ts...>
         {
-            return std::make_tuple(std::get<I>(t)...);
-        }
+            using Types = detail::merge<
+                std::tuple<T>,
+                typename TypesBefore<N - 1, Ts...>::Types>::type;
+        };
+
+        // TODO: is this overload required?
+        template<class Head, class... Tail>
+        struct TypesBefore<0, Head, Tail...>
+        {
+            using Types = std::tuple<>;
+        };
+
+        template<>
+        struct TypesBefore<0>
+        {
+            using Types = std::tuple<>;
+        };
+
+        template<size_t, class>
+        struct TypesBeforeTupleAdapter;
 
         template<size_t Index, class... Ts>
-        struct TypesBefore
+        struct TypesBeforeTupleAdapter<Index, std::tuple<Ts...>>
         {
-            using Types = decltype(makeSubsetTuple(
-                std::tuple<Ts...> {}, std::make_index_sequence<Index> {}));
+            using Types = TypesBefore<Index, Ts...>::Types;
         };
     } // namespace utils
 } // namespace dic

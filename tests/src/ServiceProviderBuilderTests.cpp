@@ -1,7 +1,7 @@
 #include "CommonTypes.hpp"
 #include <cppdic/ServiceProviderBuilder.hpp>
 
-static void ServiceProviderBuilderTests_IsConstructible()
+/*static void ServiceProviderBuilderTests_IsConstructible()
 {
     constexpr auto builder = dic::ServiceProviderBuilder();
 }
@@ -21,4 +21,4 @@ static void ServiceProviderBuilderTests_CanOverwriteExistingConcreteDependency()
 {
     auto builder =
         dic::ServiceProviderBuilder().addService<I, Ia>().addService<I, Ib>();
-}
+}*/

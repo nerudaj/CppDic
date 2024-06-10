@@ -19,9 +19,8 @@ namespace dic
                 : std::bool_constant<
                       CanConstructTypeFromTuple<
                           Target,
-                          decltype(makeSubsetTuple(
-                              Tuple {},
-                              std::make_index_sequence<PrefixLen> {}))>::value
+                          typename TypesBeforeTupleAdapter<PrefixLen, Tuple>::
+                              Types>::value
                       || CanConstructTypeFromAtLeastOneTuplePrefixSubset<
                           Target,
                           PrefixLen - 1,

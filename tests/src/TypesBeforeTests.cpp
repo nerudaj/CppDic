@@ -15,4 +15,9 @@ static void TypesBeforeTests()
     static_assert(std::is_same_v<
                   dic::utils::TypesBefore<3, A, B, C>::Types,
                   std::tuple<A, B, C>>);
+
+    static_assert(
+        std::is_same_v<
+            dic::utils::TypesBeforeTupleAdapter<3, std::tuple<A, B, C>>::Types,
+            std::tuple<A, B, C>>);
 }
