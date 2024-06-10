@@ -91,7 +91,8 @@ namespace dic
                         std::is_default_constructible_v<Impl>
                             || utils::CanConstructTypeFromAListOfTuples<
                                 Impl,
-                                utils::Permutations<Services<Ts...>>>::Types,
+                                utils::Permutations<Services<Ts...>>::Types>::
+                                value,
                         "Could not construct service only from services "
                         "already "
                         "registered in the builder.");
