@@ -20,7 +20,6 @@ namespace dic
                 typename TypesBefore<N - 1, Ts...>::Types>::type;
         };
 
-        // TODO: is this overload required?
         template<class Head, class... Tail>
         struct TypesBefore<0, Head, Tail...>
         {

@@ -13,7 +13,7 @@ namespace dic
     concept IsConcrete = !std::is_abstract_v<C>;
 
     template<class... Ts>
-    class ServiceProviderBuilder final
+    class [[nodiscard]] ServiceProviderBuilder final
     {
     public:
         template<class T, class U, class V>

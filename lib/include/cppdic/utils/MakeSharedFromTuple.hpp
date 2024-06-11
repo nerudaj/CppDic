@@ -12,7 +12,7 @@ namespace dic
         {
             static_assert(
                 std::constructible_from<Target, Ts...>,
-                "Cannot construct type from given tuple");
+                "Sanity check - Cannot construct type from given tuple");
             return std::apply(
                 [](const Ts&... args)
                 { return std::make_shared<Target>(args...); },

@@ -2,8 +2,7 @@
 
 #include <type_traits>
 
-// https://
-// codereview.stackexchange.com/questions/80373/generating-all-permutations-of-a-template-pack
+// https://codereview.stackexchange.com/questions/80373/generating-all-permutations-of-a-template-pack
 
 namespace dic
 {
