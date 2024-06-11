@@ -10,10 +10,7 @@ namespace dic
     class [[nodiscard]] ServiceProvider final
     {
     public:
-        explicit ServiceProvider(Services<Ts...> _impls) : impls(_impls)
-        {
-            initialize<0, Ts...>();
-        }
+        explicit ServiceProvider(Services<Ts...> _impls) : impls(_impls) {}
 
     public:
         template<class T>
@@ -21,20 +18,6 @@ namespace dic
         {
             constexpr auto index = utils::getIndex<T, Ts...>(0);
             return std::get<index>(impls);
-        }
-
-    private:
-        template<size_t Index, class Head, class... Tail>
-        void initialize()
-        {
-            auto& impl = std::get<Index>(impls);
-            if (impl == nullptr)
-            {
-                impl = std::make_shared<Head::ImplType>();
-            }
-
-            if constexpr (Index < sizeof...(Ts) - 1)
-                initialize<Index + 1, Tail...>();
         }
 
     private:

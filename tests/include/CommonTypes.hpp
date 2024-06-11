@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <print>
 
 struct A
 {
@@ -27,6 +28,11 @@ struct E
 struct Eshared
 {
     Eshared(std::shared_ptr<A>, std::shared_ptr<B>) {}
+
+    void hello()
+    {
+        std::println("Hello");
+    }
 };
 
 struct I

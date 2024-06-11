@@ -66,3 +66,12 @@ ServiceProviderBuilderTests_CanReplaceInterfaceWithPreparedImplementation()
                                .addService<I>(bshared)),
                   dic::ServiceProviderBuilder<dic::Service<I, I>>>);
 }
+
+/*
+static void ServiceProviderBuilderTests_CanBuildProvider()
+{
+    auto provider = dic::ServiceProviderBuilder()
+                        .addService<A>()
+                        .addService<I, Ia>()
+                        .build();
+}*/

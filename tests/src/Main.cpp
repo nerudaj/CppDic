@@ -1,92 +1,37 @@
+#include "CommonTypes.hpp"
 #include <cppdic/ServiceProviderBuilder.hpp>
 #include <print>
 
-/*class I
+struct Mock : public I
 {
-public:
-    virtual void hello() = 0;
-};
-
-class A : public I
-{
-public:
-    void hello() override
+    int foo() override
     {
-        std::println("hello");
+        return -1;
     }
 };
-
-class B : public I
-{
-public:
-    void hello() override
-    {
-        std::println("world");
-    }
-};
-
-class C
-{
-public:
-    void hello()
-    {
-        std::println("C");
-    }
-};
-
-class D
-{
-};
-
-class Perm
-{
-public:
-    Perm(A, C, B) {}
-};*/
 
 int main()
 {
-    /*constexpr auto index1 =
-        dic::utils::getIndex<I, dic::Service<C, C>, dic::Service<I, A>>(0);
-    static_assert(index1 == 1u);
-    constexpr auto index2 =
-        dic::utils::getIndex<B, dic::Service<C, C>, dic::Service<I, A>>(0);
-    static_assert(index2 == 2u);
+    {
+        // Can be constructed
+        auto provider =
+            dic::ServiceProviderBuilder()
+                .addService<A>()
+                .addService<B>()
+                .addService<Eshared>() // requires A and B as dependencies
+                .build();
+        provider.get<Eshared>()->hello();
+    }
 
-    using before = dic::utils::TypesBefore<1, A, B, C>::Types;
-    static_assert(std::is_same_v<before, std::tuple<A>>);
+    {
+        auto mock = std::make_shared<Mock>();
+        auto&& provider = dic::ServiceProviderBuilder()
+                              .addService<I, Ia>()
+                              .addService<I>(mock)
+                              .build();
 
-    using after = dic::utils::TypesAfter<1, A, B, C>::Types;
-    static_assert(std::is_same_v<after, std::tuple<C>>);
-
-    auto&& b = std::make_shared<B>();
-    auto&& provider = dic::ServiceProviderBuilder()
-                          .addService<I, A>()
-                          .addService<I, A>(b)
-                          .addService<C>()
-                          .build();
-    provider.get<I>()->hello();
-
-    static_assert(
-        dic::utils::CanConstructTypeFromTuple<Perm, std::tuple<A, C, B>>::
-            value);
-    static_assert(std::constructible_from<Perm, A, C, B>);
-    static_assert(!std::constructible_from<Perm, A, B, C>);
-    static_assert(
-        !dic::utils::CanConstructTypeFromTuple<Perm, std::tuple<A, B, C>>::
-            value);
-    static_assert(dic::utils::CanConstructTypeFromAListOfTuples<
-                  Perm,
-                  std::tuple<A, C, B>>::value);
-    static_assert(!dic::utils::CanConstructTypeFromAListOfTuples<
-                  Perm,
-                  std::tuple<A, B, C>>::value);
-    static_assert(dic::utils::TopLevelUnpack<
-                  Perm,
-                  dic::utils::permutations_t<std::tuple<A, B, C, D>>>::value);
-    static_assert(!dic::utils::TopLevelUnpack<
-                  Perm,
-                  dic::utils::permutations_t<std::tuple<A, B>>>::value);*/
+        std::println("{}", provider.get<I>()->foo());
+    }
 
     return 0;
 }
