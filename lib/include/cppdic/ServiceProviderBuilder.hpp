@@ -6,6 +6,11 @@
 
 namespace dic
 {
+    template<class C>
+    concept IsAbstract = std::is_abstract_v<C>;
+
+    template<class C>
+    concept IsConcrete = !std::is_abstract_v<C>;
 
     template<class... Ts>
     class ServiceProviderBuilder final
@@ -32,35 +37,25 @@ namespace dic
         friend class ServiceProviderBuilder;
 
     public:
-        template<class Concrete>
-        auto addService(std::shared_ptr<Concrete> impl = nullptr)
+        template<IsConcrete Concrete>
+        auto addService()
         {
-            static_assert(
-                !std::is_abstract_v<Concrete>,
-                "When calling addService with just one template parameter, "
-                "that "
-                "parameter must not be an abstract class.");
-            return addServiceImpl<true, Concrete, Concrete>(impl);
+            return addServiceImpl<true, Concrete, Concrete>();
         }
 
-        template<class Iface, class Impl>
-        auto addService(std::shared_ptr<Iface> impl = nullptr)
+        template<
+            IsAbstract Iface,
+            IsConcrete Impl,
+            class = std::enable_if_t<std::is_base_of_v<Iface, Impl>>>
+        auto addService()
         {
-            static_assert(
-                std::is_abstract_v<Iface>,
-                "When calling addService with two template parameters, first "
-                "parameter must be an abstract class.");
-            static_assert(
-                !std::is_abstract_v<Impl>,
-                "When calling addService with two template parameters, the "
-                "second "
-                "parameter must be a concrete class.");
-            static_assert(
-                std::is_base_of_v<Iface, Impl>,
-                "The first template parameter of addService must be a base "
-                "class "
-                "of the second parameter");
-            return addServiceImpl<true, Iface, Impl>(impl);
+            return addServiceImpl<true, Iface, Impl>();
+        }
+
+        template<class T>
+        auto addService(std::shared_ptr<T> impl)
+        {
+            return addServiceImpl<false, T, T>(impl);
         }
 
         auto build()

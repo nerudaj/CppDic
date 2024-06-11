@@ -8,17 +8,61 @@ static void ServiceProviderBuilderTests_IsConstructible()
 
 static void ServiceProviderBuilderTests_CanAddNewConcreteDependency()
 {
-    auto builder =
-        dic::ServiceProviderBuilder().addService<A>().addService<B>();
+    static_assert(
+        std::is_same_v<
+            decltype(dic::ServiceProviderBuilder()
+                         .addService<A>()
+                         .addService<B>()),
+            dic::ServiceProviderBuilder<dic::Service<A>, dic::Service<B>>>);
 }
 
 static void ServiceProviderBuilderTests_CanAddNewInterfaceDependency()
 {
-    auto builder = dic::ServiceProviderBuilder().addService<I, Ia>();
+    static_assert(std::is_same_v<
+                  decltype(dic::ServiceProviderBuilder().addService<I, Ia>()),
+                  dic::ServiceProviderBuilder<dic::Service<I, Ia>>>);
 }
 
 static void ServiceProviderBuilderTests_CanOverwriteExistingConcreteDependency()
 {
-    auto builder =
-        dic::ServiceProviderBuilder().addService<I, Ia>().addService<I, Ib>();
+    static_assert(std::is_same_v<
+                  decltype(dic::ServiceProviderBuilder()
+                               .addService<I, Ia>()
+                               .addService<I, Ib>()),
+                  dic::ServiceProviderBuilder<dic::Service<I, Ib>>>);
+}
+
+static void ServiceProviderBuilderTests_ChecksIfConcreteObjectCanBeConstructed()
+{
+    static_assert(std::is_same_v<
+                  decltype(dic::ServiceProviderBuilder()
+                               .addService<A>()
+                               .addService<B>()
+                               .addService<Eshared>()),
+                  dic::ServiceProviderBuilder<
+                      dic::Service<A>,
+                      dic::Service<B>,
+                      dic::Service<Eshared>>>);
+}
+
+static void ServiceProviderBuilderTests_ChecksIfInterfaceImplCanBeConstructed()
+{
+    static_assert(std::is_same_v<
+                  decltype(dic::ServiceProviderBuilder()
+                               .addService<A>()
+                               .addService<I, IEshared>()),
+                  dic::ServiceProviderBuilder<
+                      dic::Service<A>,
+                      dic::Service<I, IEshared>>>);
+}
+
+static void
+ServiceProviderBuilderTests_CanReplaceInterfaceWithPreparedImplementation()
+{
+    auto&& bshared = std::make_shared<Ib>();
+    static_assert(std::is_same_v<
+                  decltype(dic::ServiceProviderBuilder()
+                               .addService<I, Ia>()
+                               .addService<I>(bshared)),
+                  dic::ServiceProviderBuilder<dic::Service<I, I>>>);
 }

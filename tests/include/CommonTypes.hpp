@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 struct A
 {
 };
@@ -22,6 +24,11 @@ struct E
     E(A, B) {}
 };
 
+struct Eshared
+{
+    Eshared(std::shared_ptr<A>, std::shared_ptr<B>) {}
+};
+
 struct I
 {
     virtual ~I() = default;
@@ -41,5 +48,15 @@ struct Ib : public I
     int foo() override
     {
         return 69;
+    };
+};
+
+struct IEshared : public I
+{
+    IEshared(std::shared_ptr<A>) {}
+
+    int foo() override
+    {
+        return 88;
     };
 };
