@@ -14,37 +14,46 @@ namespace dic
             template<class Target, size_t, class>
             struct CanConstructTypeFromAtLeastOneTuplePrefixSubset;
 
-            template<class Target, size_t PrefixLen, class Tuple>
+            template<class Target, size_t PrefixLen, class _Tuple>
             struct CanConstructTypeFromAtLeastOneTuplePrefixSubset
-                : std::bool_constant<
-                      CanConstructTypeFromTuple<
-                          Target,
-                          typename TypesBeforeTupleAdapter<PrefixLen, Tuple>::
-                              Types>::value
-                      || CanConstructTypeFromAtLeastOneTuplePrefixSubset<
-                          Target,
-                          PrefixLen - 1,
-                          Tuple>::value>
             {
+                using _Subset =
+                    TypesBeforeTupleAdapter<PrefixLen, _Tuple>::Types;
+                using _Detail =
+                    CanConstructTypeFromTuple<Target, typename _Subset>;
+                using _Recurse =
+                    CanConstructTypeFromAtLeastOneTuplePrefixSubset<
+                        Target,
+                        PrefixLen - 1,
+                        _Tuple>;
+                constexpr static bool value = _Detail::value || _Recurse::value;
+                using Tuple = std::conditional_t<
+                    _Detail::value,
+                    typename _Subset,
+                    typename _Recurse::Tuple>;
             };
 
-            template<class Target, class Tuple>
+            template<class Target, class _Tuple>
             struct CanConstructTypeFromAtLeastOneTuplePrefixSubset<
                 Target,
                 0,
-                Tuple> : std::false_type
+                _Tuple>
             {
+                constexpr static bool value = false;
+                using Tuple = std::tuple<>;
             };
         } // namespace detail
 
-        template<class Target, class Tuple>
+        template<class Target, class _Tuple>
         struct CanConstructTypeFromAtLeastOneTuplePrefixSubset
-            : std::bool_constant<
-                  detail::CanConstructTypeFromAtLeastOneTuplePrefixSubset<
-                      Target,
-                      std::tuple_size_v<Tuple>,
-                      Tuple>::value>
         {
+            using _Detail =
+                detail::CanConstructTypeFromAtLeastOneTuplePrefixSubset<
+                    Target,
+                    std::tuple_size_v<_Tuple>,
+                    _Tuple>;
+            constexpr static bool value = _Detail::value;
+            using Tuple = _Detail::Tuple;
         };
     } // namespace utils
 } // namespace dic

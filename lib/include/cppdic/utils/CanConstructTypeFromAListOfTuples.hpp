@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cppdic/utils/CanConstructTypeFromTuple.hpp"
+#include "cppdic/utils/CanConstructTypeFromAtLeastOneTuplePrefixSubset.hpp"
 #include <tuple>
 #include <type_traits>
 
@@ -15,16 +15,27 @@ namespace dic
 
             template<class T, class Head, class... Tail>
             struct CanConstructTypeFromAListOfTuples<T, Head, Tail...>
-                : std::bool_constant<
-                      CanConstructTypeFromTuple<T, Head>::value
-                      || CanConstructTypeFromAListOfTuples<T, Tail...>::value>
             {
+                using _Recurse = CanConstructTypeFromAListOfTuples<T, Tail...>;
+                using _Detail = ::dic::utils::
+                    CanConstructTypeFromAtLeastOneTuplePrefixSubset<T, Head>;
+                constexpr static bool value = _Detail::value;
+                using Tuple = std::conditional_t<
+                    _Detail::value,
+                    typename _Detail::Tuple,
+                    typename _Recurse::Tuple>;
             };
 
             template<class T, class U>
             struct CanConstructTypeFromAListOfTuples<T, U>
-                : std::bool_constant<CanConstructTypeFromTuple<T, U>::value>
             {
+                using _Detail = ::dic::utils::
+                    CanConstructTypeFromAtLeastOneTuplePrefixSubset<T, U>;
+                constexpr static bool value = _Detail::value;
+                using Tuple = std::conditional_t<
+                    _Detail::value,
+                    typename _Detail::Tuple,
+                    std::tuple<>>;
             };
         } // namespace detail
 
@@ -33,9 +44,10 @@ namespace dic
 
         template<class T, class... Us>
         struct CanConstructTypeFromAListOfTuples<T, std::tuple<Us...>>
-            : std::bool_constant<
-                  detail::CanConstructTypeFromAListOfTuples<T, Us...>::value>
         {
+            using _Detail = detail::CanConstructTypeFromAListOfTuples<T, Us...>;
+            constexpr static bool value = _Detail::value;
+            using Tuple = _Detail::Tuple;
         };
     } // namespace utils
 } // namespace dic
