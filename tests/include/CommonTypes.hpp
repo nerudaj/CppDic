@@ -13,6 +13,7 @@ struct B
 
 struct C
 {
+    C(B) {}
 };
 
 struct D

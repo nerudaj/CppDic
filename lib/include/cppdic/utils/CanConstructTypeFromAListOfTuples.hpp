@@ -19,7 +19,7 @@ namespace dic
                 using _Recurse = CanConstructTypeFromAListOfTuples<T, Tail...>;
                 using _Detail = ::dic::utils::
                     CanConstructTypeFromAtLeastOneTuplePrefixSubset<T, Head>;
-                constexpr static bool value = _Detail::value;
+                constexpr static bool value = _Detail::value || _Recurse::value;
                 using Tuple = std::conditional_t<
                     _Detail::value,
                     typename _Detail::Tuple,

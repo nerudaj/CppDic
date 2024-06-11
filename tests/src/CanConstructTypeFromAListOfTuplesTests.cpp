@@ -23,4 +23,9 @@ static void CanConstructTypeFromAListOfTuplesTests()
                 E,
                 dic::utils::Permutations<std::tuple<A, B, C>>::Types>::Tuple,
             std::tuple<A, B>>);
+
+    static_assert(dic::utils::detail::CanConstructTypeFromAListOfTuples<
+                  C,
+                  std::tuple<A, B>,
+                  std::tuple<B, A>>::value);
 }

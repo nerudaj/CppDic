@@ -73,7 +73,10 @@ namespace dic
 
             if constexpr (PerformCreationChecks)
             {
-                if constexpr (sizeof...(Ts) == 0)
+                using TypesBeforeThisOne = utils::
+                    TypesBeforeTupleAdapter<index, Services<Ts...>>::Types;
+
+                if constexpr (std::tuple_size_v<TypesBeforeThisOne> == 0)
                 {
                     static_assert(
                         std::is_default_constructible_v<Impl>,
@@ -82,14 +85,12 @@ namespace dic
                 }
                 else
                 {
-                    // using TypesBeforeThisOne =
-                    //     utils::TypesBefore<index, Services<Ts...>>::Types;
                     static_assert(
                         std::is_default_constructible_v<Impl>
                             || utils::CanConstructTypeFromAListOfTuples<
                                 Impl,
-                                utils::Permutations<Services<Ts...>>::Types>::
-                                value,
+                                utils::Permutations<
+                                    TypesBeforeThisOne>::Types>::value,
                         "Could not construct service only from services "
                         "already "
                         "registered in the builder.");
