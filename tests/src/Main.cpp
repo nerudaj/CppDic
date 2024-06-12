@@ -70,48 +70,7 @@ struct Ee
 
 int main()
 {
-    {
-        // Can be constructed
-        auto provider =
-            dic::ServiceProviderBuilder()
-                .addService<A>()
-                .addService<B>()
-                .addService<Eshared>() // requires A and B as dependencies
-                .build();
-        provider.get<Eshared>()->hello();
-    }
-
-    {
-        auto mock = std::make_shared<Mock>();
-        auto&& provider = dic::ServiceProviderBuilder()
-                              .addService<I, Ia>()
-                              .addService<I>(mock)
-                              .build();
-
-        std::println("{}", provider.get<I>()->foo());
-    }
-
-    constexpr auto index =
-        dic::utils::getIndex<Cc, dic::Service<Aa>, dic::Service<Bb>>(0);
-    // using TypesBeforeThisOne = ;
-    using Permutations =
-        dic::utils::Permutations<dic::utils::TypesBeforeTupleAdapter<
-            index,
-            typename dic::Services<dic::Service<Aa>, dic::Service<Bb>>>::
-                                     Types>::Types;
-    static_assert(std::is_same_v<
-                  Permutations,
-                  std::tuple<
-                      std::tuple<std::shared_ptr<Aa>, std::shared_ptr<Bb>>,
-                      std::tuple<std::shared_ptr<Bb>, std::shared_ptr<Aa>>>>);
-    constexpr bool value =
-        dic::utils::CanConstructTypeFromAListOfTuples<Cc, Permutations>::value;
-    constexpr bool value2 =
-        dic::utils::CanConstructTypeFromAtLeastOneTuplePrefixSubset<
-            Cc,
-            std::tuple<std::shared_ptr<Bb>, std::shared_ptr<Aa>>>::value;
-
-    {
+    { // Provider can be constructed and resolves fairly complex dependencies
         auto&& provider = dic::ServiceProviderBuilder()
                               .addService<Aa>()
                               .addService<Bb>()
@@ -119,7 +78,29 @@ int main()
                               .addService<Dd>()
                               .addService<Ee>()
                               .build();
-        std::println("{}", provider.get<Ee>()->tuv());
+        std::println("{}", provider.get<Ee>()->tuv()); // expecting 128
+    }
+
+    auto mock = std::make_shared<Mock>();
+
+    { // Service can be mocked
+
+        auto&& provider = dic::ServiceProviderBuilder()
+                              .addService<I>(mock)
+                              .addService<DependsOnI>()
+                              .build();
+
+        std::println("{}", provider.get<I>()->foo()); // expecting -1
+    }
+
+    { // Service can be replaced
+        auto&& provider = dic::ServiceProviderBuilder()
+                              .addService<I, Ia>()
+                              .addService<DependsOnI>()
+                              .addService<I>(mock)
+                              .build();
+
+        std::println("{}", provider.get<I>()->foo()); // expecting -1
     }
 
     return 0;
