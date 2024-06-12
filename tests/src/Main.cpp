@@ -2,81 +2,15 @@
 #include <cppdic/ServiceProviderBuilder.hpp>
 #include <print>
 
-struct Mock : public I
-{
-    int foo() override
-    {
-        return -1;
-    }
-};
-
-struct Aa
-{
-    int bar()
-    {
-        return 2;
-    }
-};
-
-struct Bb
-{
-    Bb(std::shared_ptr<Aa> _aa) : aa(_aa) {}
-
-    int baz()
-    {
-        return 2 * aa->bar(); // 4
-    }
-
-    std::shared_ptr<Aa> aa;
-};
-
-struct Cc
-{
-    Cc(std::shared_ptr<Bb> _bb) : bb(_bb) {}
-
-    int foo()
-    {
-        return bb->baz() * 4; // 16
-    }
-
-    std::shared_ptr<Bb> bb;
-};
-
-struct Dd
-{
-    Dd(std::shared_ptr<Aa> _aa, std::shared_ptr<Cc> _cc) : aa(_aa), cc(_cc) {}
-
-    int xyz()
-    {
-        return aa->bar() * cc->foo(); // 32
-    }
-
-    std::shared_ptr<Aa> aa;
-    std::shared_ptr<Cc> cc;
-};
-
-struct Ee
-{
-    Ee(std::shared_ptr<Dd> _dd, std::shared_ptr<Bb> _bb) : dd(_dd), bb(_bb) {}
-
-    int tuv()
-    {
-        return dd->xyz() * bb->baz(); // 128
-    }
-
-    std::shared_ptr<Dd> dd;
-    std::shared_ptr<Bb> bb;
-};
-
 int main()
 {
     { // Provider can be constructed and resolves fairly complex dependencies
         auto&& provider = dic::ServiceProviderBuilder()
-                              .addService<Aa>()
-                              .addService<Bb>()
-                              .addService<Cc>()
-                              .addService<Dd>()
-                              .addService<Ee>()
+                              .addService<Aa>() // depends on nothing
+                              .addService<Bb>() // depends on Aa
+                              .addService<Cc>() // depends on Bb
+                              .addService<Dd>() // depends on Aa and Cc
+                              .addService<Ee>() // depends on Dd and Bb
                               .build();
         std::println("{}", provider.get<Ee>()->tuv()); // expecting 128
     }
