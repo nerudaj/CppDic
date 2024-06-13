@@ -73,4 +73,4 @@ provider->get<I>()->doSomething();
 
 ## Documentation
 
-This repo was published as a complement to my Medium article about this project. The article is available here: [link]() (no premium account required)
+This repo was published as a complement to my Medium article about this project. The article is available here: [link](https://medium.com/@nerudaj/dependency-injection-containers-c-and-a-ton-of-metaprogramming-2fb82e56bf6c) (no premium account required)
